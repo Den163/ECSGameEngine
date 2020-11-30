@@ -112,19 +112,20 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CameraFrustum.h" />
-    <ClInclude Include="CameraMatrices.h" />
-    <ClInclude Include="GLCameraRendererSystem.h" />
-    <ClInclude Include="GLMeshRendererSystem.h" />
-    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Systems\BaseSystem.h" />
+    <ClInclude Include="Components\CameraFrustum.h" />
+    <ClInclude Include="Components\CameraMatrices.h" />
+    <ClInclude Include="Systems\GLCameraRendererSystem.h" />
+    <ClInclude Include="Systems\GLMeshRendererSystem.h" />
+    <ClInclude Include="Components\Mesh.h" />
     <ClInclude Include="OpenglCustomWidget.h" />
-    <ClInclude Include="TransformMatrix.h" />
-    <ClInclude Include="Transofrm.h" />
-    <ClInclude Include="Vertex.h" />
+    <ClInclude Include="Components\TransformMatrix.h" />
+    <ClInclude Include="Components\Transofrm.h" />
+    <ClInclude Include="Components\Vertex.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="fragment.frag" />
-    <None Include="vertex.vert" />
+    <None Include="Shaders\fragment.frag" />
+    <None Include="Shaders\vertex.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

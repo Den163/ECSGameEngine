@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1126</width>
-    <height>931</height>
+    <width>1108</width>
+    <height>926</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -64,7 +64,7 @@
         <bool>false</bool>
        </property>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout">
         <property name="spacing">
          <number>20</number>

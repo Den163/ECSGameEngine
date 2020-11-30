@@ -5,7 +5,7 @@
 
 struct Transform
 {
-	glm::vec3 position;
+	glm::vec3 position {0};
 	glm::quat rotation;
 	glm::vec3 scale { 1 };
 };

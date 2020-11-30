@@ -1,12 +1,13 @@
 #include <OpenGLCustomWidget.h>
 
+
 void OpenGLCustomWidget::initializeGL()
 {
 	gl = QOpenGLContext::currentContext()->functions();
 	shaderProgram = new QOpenGLShaderProgram(this);
-	shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vertex.vert");
+	shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/Shaders/vertex.vert");
 	showLog();
-	shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fragment.frag");
+	shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/Shaders/fragment.frag");
 	showLog();
 	shaderProgram->link();
 	showLog();
@@ -20,11 +21,8 @@ void OpenGLCustomWidget::initializeGL()
 		registry,
 		gl,
 		shaderProgram,
-		projectionUniform,
-		viewUniform
 	};
 	glMeshRenderer = new GLMeshRendererSystem{
-		positionAttribute,
 		registry,
 		gl,
 		shaderProgram
@@ -33,7 +31,7 @@ void OpenGLCustomWidget::initializeGL()
 	const auto camera = registry.create();
 	registry.emplace<Transform>(camera);
 	auto& frustum = registry.emplace<CameraFrustum>(camera);
-	
+
 	frustum.aspectRatio = 1.0f * width() / height();
 	frustum.nearClipPlane = 0.1f;
 	frustum.farClipPlane = 1000.f;
@@ -57,6 +55,13 @@ void OpenGLCustomWidget::paintGL()
 	std::cout << "Was painter" << std::endl;
 }
 
+void OpenGLCustomWidget::keyPressEvent(QKeyEvent* keyEvent)
+{
+	auto keyText = keyEvent->text();
+
+	// TODO Add key press handling
+}
+
 void OpenGLCustomWidget::showLog() const
 {
 	std::cout << shaderProgram->log().toStdString() << std::endl;
@@ -69,20 +74,20 @@ void OpenGLCustomWidget::addVertex(glm::vec3 vertexPosition)
 	for (auto entity : view)
 	{
 		auto& mesh = view.get<Mesh>(entity);
-		mesh.vertices.push_back(Vertex { vertexPosition });
+		mesh.vertices.push_back(Vertex{vertexPosition});
 	}
-	
+
 	update();
 }
 
 void OpenGLCustomWidget::setCameraPosition(glm::vec3 cameraPosition)
 {
 	auto view = registry.view<CameraFrustum, Transform>();
-	for (auto entity: view)
+	for (auto entity : view)
 	{
 		auto& transform = view.get<Transform>(entity);
 		transform.position = cameraPosition;
 	}
-	
+
 	update();
 }

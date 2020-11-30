@@ -9,9 +9,12 @@
 #include <glm/gtx/string_cast.hpp>
 #include <glm/matrix.hpp>
 #include <iostream>
+#include <tuple>
+#include <utility>
+#include <QKeyEvent>
 
-#include "GLCameraRendererSystem.h"
-#include "GLMeshRendererSystem.h"
+#include "Systems/GLCameraRendererSystem.h"
+#include "Systems/GLMeshRendererSystem.h"
 #include "entt/entt.hpp"
 
 class OpenGLCustomWidget final : public QOpenGLWidget
@@ -26,14 +29,13 @@ public slots:
 protected:
 	void initializeGL() override;
 	void paintGL() override;
+	void keyPressEvent(QKeyEvent* keyEvent) override;
 
 private:
 	void showLog() const;
 	
 	QOpenGLShaderProgram* shaderProgram = nullptr;
 	QOpenGLFunctions* gl = nullptr;
-	std::vector<glm::vec3> vertices {0};
-	glm::vec3 cameraPosition {0};
 
 	GLuint positionAttribute = 0;
 	GLuint modelUniform = 0;

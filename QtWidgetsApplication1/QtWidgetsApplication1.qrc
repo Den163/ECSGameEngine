@@ -1,7 +1,7 @@
 <RCC>
     <qresource prefix="/QtWidgetsApplication1"/>
     <qresource prefix="/shaders">
-        <file>vertex.vert</file>
-        <file>fragment.frag</file>
+        <file>Shaders/fragment.frag</file>
+        <file>Shaders/vertex.vert</file>
     </qresource>
 </RCC>

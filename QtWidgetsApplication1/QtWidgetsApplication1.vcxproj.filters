@@ -58,36 +58,39 @@
     <ClInclude Include="OpenglCustomWidget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Transofrm.h">
+    <ClInclude Include="Components\CameraFrustum.h">
       <Filter>Components</Filter>
     </ClInclude>
-    <ClInclude Include="TransformMatrix.h">
+    <ClInclude Include="Components\TransformMatrix.h">
       <Filter>Components</Filter>
     </ClInclude>
-    <ClInclude Include="Vertex.h">
+    <ClInclude Include="Components\Transofrm.h">
       <Filter>Components</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
+    <ClInclude Include="Components\Vertex.h">
       <Filter>Components</Filter>
     </ClInclude>
-    <ClInclude Include="CameraMatrices.h">
+    <ClInclude Include="Components\Mesh.h">
       <Filter>Components</Filter>
     </ClInclude>
-    <ClInclude Include="CameraFrustum.h">
-      <Filter>Components</Filter>
-    </ClInclude>
-    <ClInclude Include="GLMeshRendererSystem.h">
+    <ClInclude Include="Systems\GLCameraRendererSystem.h">
       <Filter>Systems</Filter>
     </ClInclude>
-    <ClInclude Include="GLCameraRendererSystem.h">
+    <ClInclude Include="Systems\GLMeshRendererSystem.h">
+      <Filter>Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\CameraMatrices.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Systems\BaseSystem.h">
       <Filter>Systems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="vertex.vert">
+    <None Include="Shaders\fragment.frag">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="fragment.frag">
+    <None Include="Shaders\vertex.vert">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
