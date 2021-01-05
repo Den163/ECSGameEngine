@@ -112,9 +112,14 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Components\CoreGlVariables.h" />
+    <ClInclude Include="Components\GlContext.h" />
+    <ClInclude Include="Components\GlWidgetInfo.h" />
+    <ClInclude Include="Components\ScreenSettings.h" />
     <ClInclude Include="Systems\BaseSystem.h" />
     <ClInclude Include="Components\CameraFrustum.h" />
     <ClInclude Include="Components\CameraMatrices.h" />
+    <ClInclude Include="Systems\CameraAspectRatioSystem.h" />
     <ClInclude Include="Systems\GLCameraRendererSystem.h" />
     <ClInclude Include="Systems\GLMeshRendererSystem.h" />
     <ClInclude Include="Components\Mesh.h" />
@@ -122,6 +127,8 @@
     <ClInclude Include="Components\TransformMatrix.h" />
     <ClInclude Include="Components\Transofrm.h" />
     <ClInclude Include="Components\Vertex.h" />
+    <ClInclude Include="Systems\InitGlSystem.h" />
+    <ClInclude Include="Systems\SystemsContainer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\fragment.frag" />

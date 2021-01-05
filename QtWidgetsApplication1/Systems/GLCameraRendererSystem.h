@@ -8,34 +8,37 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+
+#include "BaseSystem.h"
 #include "Components/CameraFrustum.h"
 #include "Components/CameraMatrices.h"
+#include "Components/CoreGlVariables.h"
+#include "Components/GlContext.h"
+#include "Components/ScreenSettings.h"
 #include "Components/Transofrm.h"
 #include "entt/entt.hpp"
 
-class GLCameraRendererSystem
+class GLCameraRendererSystem : public BaseSystem
 {
 public:
-	explicit GLCameraRendererSystem(
-		entt::registry& registry,
-		QOpenGLFunctions* glFunctions,
-		QOpenGLShaderProgram* shaderProgram)
-		:
-		_registry(registry),
-		_glFunctions(glFunctions),
-		_projectionUniform(shaderProgram->uniformLocation("projection")),
-		_viewUniform(shaderProgram->uniformLocation("view"))
+	void init(entt::registry & registry) override
 	{
-	}
+		const auto camera = registry.create();
+		registry.emplace<Transform>(camera);
+		auto& frustum = registry.emplace<CameraFrustum>(camera);
 
-public:
-	void update() const
+		frustum.nearClipPlane = 0.1f;
+		frustum.farClipPlane = 1000.f;
+		frustum.verticalFieldOfViewInDegrees = 45;
+	}
+	
+	void update(entt::registry & registry) override
 	{
-		auto view = _registry.view<CameraFrustum, Transform>();
+		auto cameraView = registry.view<CameraFrustum, Transform>();
 		
-		for (auto entity : view)
+		for (auto entity : cameraView)
 		{
-			auto [frustum, transform] = _registry.get<CameraFrustum, Transform>(entity);
+			auto [frustum, transform] = cameraView.get<CameraFrustum, Transform>(entity);
 
 			auto viewMatrix =
 				glm::lookAt(transform.position, glm::vec3{0}, glm::vec3{0, 1, 0});
@@ -45,22 +48,31 @@ public:
 				frustum.nearClipPlane,
 				frustum.farClipPlane);
 
-			_glFunctions->glUniformMatrix4fv(
-				_viewUniform,
+			addViewProjectionMatrices(registry, viewMatrix, projectionMatrix);
+		}
+	}
+private:
+	static void addViewProjectionMatrices(
+		entt::registry & registry, glm::mat4x4 & viewMatrix, glm::mat4x4 & projectionMatrix)
+	{
+		auto glView = registry.view<GlContext, CoreGlVariables, ScreenSettings>();
+
+		for (auto entity : glView)
+		{
+			auto [context, vars, screenSettings] = 
+				glView.get<GlContext, CoreGlVariables, ScreenSettings>(entity);
+			auto* gl = context.glFunctions;
+
+			gl->glUniformMatrix4fv(
+				vars.viewUniform,
 				1,
 				GL_FALSE,
 				glm::value_ptr(viewMatrix));
-			_glFunctions->glUniformMatrix4fv(
-				_projectionUniform,
+			gl->glUniformMatrix4fv(
+				vars.projectionUniform,
 				1,
 				GL_FALSE,
 				glm::value_ptr(projectionMatrix));
 		}
 	}
-
-private:
-	entt::registry& _registry;
-	QOpenGLFunctions* _glFunctions;
-	GLuint _projectionUniform;
-	GLuint _viewUniform;
 };

@@ -16,11 +16,12 @@
 #include "Systems/GLCameraRendererSystem.h"
 #include "Systems/GLMeshRendererSystem.h"
 #include "entt/entt.hpp"
+#include "Systems/SystemsContainer.h"
 
 class OpenGLCustomWidget final : public QOpenGLWidget
 {
 public:
-	explicit OpenGLCustomWidget(QWidget* parent) : QOpenGLWidget(parent) {}
+	explicit OpenGLCustomWidget(QWidget* parent);
 
 public slots:
 	void addVertex(glm::vec3 vertexPosition);
@@ -32,17 +33,9 @@ protected:
 	void keyPressEvent(QKeyEvent* keyEvent) override;
 
 private:
-	void showLog() const;
-	
-	QOpenGLShaderProgram* shaderProgram = nullptr;
-	QOpenGLFunctions* gl = nullptr;
-
-	GLuint positionAttribute = 0;
-	GLuint modelUniform = 0;
-	GLuint viewUniform = 0;
-	GLuint projectionUniform = 0;
-
 	GLCameraRendererSystem* cameraRenderer = nullptr;
 	GLMeshRendererSystem* glMeshRenderer = nullptr;
 	entt::registry registry;
+	SystemsContainer systemsContainer;
+	
 };

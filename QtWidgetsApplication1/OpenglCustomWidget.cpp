@@ -1,58 +1,66 @@
-#include <OpenGLCustomWidget.h>
+#include <OpenglCustomWidget.h>
 
+#include "Components/GlContext.h"
+#include "Components/GlWidgetInfo.h"
+#include "Systems/CameraAspectRatioSystem.h"
+#include "Systems/GLMeshRendererSystem.h"
+#include "Systems/InitGlSystem.h"
+#include "Systems/SystemsContainer.h"
+
+OpenGLCustomWidget::OpenGLCustomWidget(QWidget* parent)
+: QOpenGLWidget(parent), systemsContainer(SystemsContainer{
+	registry,
+	{
+		new InitGlSystem {},
+		new CameraAspectRatioSystem {},
+		new GLMeshRendererSystem {},
+		new GLCameraRendererSystem {}
+	}
+})
+{
+}
 
 void OpenGLCustomWidget::initializeGL()
 {
-	gl = QOpenGLContext::currentContext()->functions();
-	shaderProgram = new QOpenGLShaderProgram(this);
-	shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/Shaders/vertex.vert");
-	showLog();
-	shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/Shaders/fragment.frag");
-	showLog();
-	shaderProgram->link();
-	showLog();
-
-	positionAttribute = shaderProgram->attributeLocation("position");
-	modelUniform = shaderProgram->uniformLocation("model");
-	viewUniform = shaderProgram->uniformLocation("view");
-	projectionUniform = shaderProgram->uniformLocation("projection");
-
-	cameraRenderer = new GLCameraRendererSystem{
-		registry,
-		gl,
-		shaderProgram,
-	};
-	glMeshRenderer = new GLMeshRendererSystem{
-		registry,
-		gl,
-		shaderProgram
-	};
-
-	const auto camera = registry.create();
-	registry.emplace<Transform>(camera);
-	auto& frustum = registry.emplace<CameraFrustum>(camera);
-
-	frustum.aspectRatio = 1.0f * width() / height();
-	frustum.nearClipPlane = 0.1f;
-	frustum.farClipPlane = 1000.f;
-	frustum.verticalFieldOfViewInDegrees = 45;
-
 	const auto meshEntity = registry.create();
 	registry.emplace<Mesh>(meshEntity);
 	registry.emplace<Transform>(meshEntity);
+
+	systemsContainer.init();
+	
+	auto glView = registry.view<GlContext>();
+
+	for (auto glEntity : glView)
+	{
+		auto& glWidgetInfo = registry.emplace<GlWidgetInfo>(glEntity);
+		auto& screenSettings = registry.emplace<ScreenSettings>(glEntity);
+
+		glWidgetInfo.glWidget = this;
+		screenSettings.width = static_cast<float>(width());
+		screenSettings.height = static_cast<float>(height());
+	}
 }
 
 void OpenGLCustomWidget::paintGL()
 {
-	gl->glClearColor(0, 0, 0, 1);
-	gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	auto glView = registry.view<GlContext, GlWidgetInfo>();
+	for (auto glEntity : glView)
+	{
+		auto [ctx, glWidgetInfo] = glView.get<GlContext, GlWidgetInfo>(glEntity);
+		auto* gl = ctx.glFunctions;
+		auto* shaderProgram = ctx.shaderProgram;
 
-	shaderProgram->bind();
+		if (glWidgetInfo.glWidget != this) continue;
 
-	cameraRenderer->update();
-	glMeshRenderer->update();
+		gl->glClearColor(0, 0, 0, 1);
+		gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	std::cout << "Was painter" << std::endl;
+		shaderProgram->bind();
+	}
+
+	systemsContainer.update();
+
+	std::cout << "Was painted" << std::endl;
 }
 
 void OpenGLCustomWidget::keyPressEvent(QKeyEvent* keyEvent)
@@ -62,20 +70,15 @@ void OpenGLCustomWidget::keyPressEvent(QKeyEvent* keyEvent)
 	// TODO Add key press handling
 }
 
-void OpenGLCustomWidget::showLog() const
-{
-	std::cout << shaderProgram->log().toStdString() << std::endl;
-}
-
 void OpenGLCustomWidget::addVertex(glm::vec3 vertexPosition)
 {
 	std::cout << glm::to_string(vertexPosition) << std::endl;
-	auto view = registry.view<Mesh>();
-	for (auto entity : view)
-	{
-		auto& mesh = view.get<Mesh>(entity);
-		mesh.vertices.push_back(Vertex{vertexPosition});
-	}
+	const auto view = registry.view<Mesh>();
+	if (view.empty()) return;
+
+	const auto firstEntity = view[0];
+	auto& mesh = view.get<Mesh>(firstEntity);
+	mesh.vertices.push_back(Vertex{vertexPosition});
 
 	update();
 }

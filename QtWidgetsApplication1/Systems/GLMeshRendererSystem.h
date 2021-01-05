@@ -4,48 +4,41 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <glm/gtc/type_ptr.hpp>
+#include "BaseSystem.h"
 
 #include "Components/Mesh.h"
 
-class GLMeshRendererSystem
+class GLMeshRendererSystem : public BaseSystem
 {
 public:
-	GLMeshRendererSystem(
-		entt::registry& registry,
-		QOpenGLFunctions* glFunctions,
-		QOpenGLShaderProgram* shaderProgram)
-		:
-		_registry(registry),
-		_glFunctions(glFunctions),
-		_shaderProgram(shaderProgram),
-		_positionAttribute(shaderProgram->attributeLocation("position"))
+	void update(entt::registry & registry) override
 	{
-	}
+		auto glView = registry.view<GlContext, CoreGlVariables>();
+		auto view = registry.view<Mesh>();
 
-	void update() const
-	{
-		auto view = _registry.view<Mesh>();
-		_shaderProgram->enableAttributeArray(_positionAttribute);
-
-		for (auto entity : view)
+		for (auto glEntity : glView)
 		{
-			auto& mesh = view.get<Mesh>(entity);
-			auto& vertices = mesh.vertices;
-			const auto vertSize = vertices.size();
+			auto [context, glVars] = glView.get<GlContext, CoreGlVariables>(glEntity);
+			auto* shaderProgram = context.shaderProgram;
+			auto* gl = context.glFunctions;
+			const auto positionAttribute = glVars.positionAttribute;
+			
+			shaderProgram->enableAttributeArray(positionAttribute);
 
-			if (vertSize == 0) return;
+			for (auto meshEntity : view)
+			{
+				auto& mesh = view.get<Mesh>(meshEntity);
+				auto& vertices = mesh.vertices;
+				const auto vertSize = vertices.size();
 
-			_shaderProgram->setAttributeArray(
-				_positionAttribute, glm::value_ptr(vertices[0].position), 3);
-			_glFunctions->glDrawArrays(GL_TRIANGLES, 0, vertSize);
+				if (vertSize == 0) return;
+
+				shaderProgram->setAttributeArray(
+					positionAttribute, glm::value_ptr(vertices[0].position), 3);
+				gl->glDrawArrays(GL_TRIANGLES, 0, vertSize);
+			}
+
+			shaderProgram->disableAttributeArray(positionAttribute);
 		}
-
-		_shaderProgram->disableAttributeArray(_positionAttribute);
 	}
-
-private:
-	entt::registry& _registry;
-	QOpenGLFunctions* _glFunctions;
-	QOpenGLShaderProgram* _shaderProgram;
-	GLuint _positionAttribute;
 };
